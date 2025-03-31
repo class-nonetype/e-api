@@ -7,7 +7,6 @@ pytz
 python-dotenv
 python-multipart
 load-dotenv
-SQLAlchemy
 psycopg2-binary
 starlette
 bcrypt

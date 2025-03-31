@@ -6,6 +6,7 @@ from starlette.status import (
 
 from src.config.log import logger
 from src.database.session import database
+from src.database.queries.user import update_last_login_date
 from src.models.schemas.user import UserAccount
 from src.config.security.jwt import (
     create_access_token, verify_access_token,
@@ -38,8 +39,21 @@ async def sign_in(schema: UserAccount, request: Request, session: sqlalchemy.orm
 
         if not user_authentication:
             return Response(status_code=HTTP_401_UNAUTHORIZED)
+        
+        user_credential = {
+            'user_id': user_authentication.id,
+            'username': user_authentication.username,
+            'role_id': user_authentication.role_id
+        }
+        user_access_token = create_access_token(credential=user_credential)
+        update_last_login_date(session=session, account_id=user_authentication.id)
 
-        return Response(status_code=HTTP_200_OK)
+        user_session = {
+            'client': request.client.host,
+            'user_id': user_authentication.id,
+            'access_token': user_access_token
+        }
+        return user_session
 
     except Exception as exception:
         logger.exception(msg=exception)

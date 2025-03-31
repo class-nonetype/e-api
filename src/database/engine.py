@@ -1,6 +1,6 @@
 import sqlalchemy
 
-from src.config.utils import ZONE, DATABASE_URL
+from src.config.utils import DATABASE_URL
 
 # Crea el motor de base de datos utilizando SQLAlchemy.
 # Este motor se encarga de gestionar la conexión y las interacciones con la base de datos.

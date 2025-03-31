@@ -8,20 +8,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-
 DATABASE_URL = getenv('DATABASE_URL', None)
 SECRET_KEY = getenv('SECRET_KEY', None)
-
-
-ZONE = 'America/Santiago'
-TIMEZONE = pytz.timezone(zone=ZONE)
-API_TITLE = 'APIExpress'
-API_DESCRIPTION = '...'
-API_VERSION = '1.0'
-API_TIMEZONE = TIMEZONE
-API_HOST = '0.0.0.0'
-API_PORT = 7500
-
+TIMEZONE = pytz.timezone(zone=getenv('TIMEZONE'))
 
 
 PACKAGE_DIRECTORY_PATH = Path(__file__).resolve().parent.parent

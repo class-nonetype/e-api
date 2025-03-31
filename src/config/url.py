@@ -1,5 +1,4 @@
-from src.config.utils import API_VERSION
-
+API_VERSION = 'v1'
 # Prefijos para las rutas de la API.
 API_PREFIX = {
     'STATIC': '/api/{0}/static'.format(API_VERSION),                    # Prefijo para recursos estáticos.

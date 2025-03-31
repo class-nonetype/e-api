@@ -20,7 +20,7 @@ except Exception as exception:
     logger.exception(msg=exception)
     raise exception
 
-
+'''
 # Bloque de eliminación de los modelos
 try:
     pass
@@ -65,4 +65,4 @@ try:
 
 except Exception as exception:
     logger.exception(msg=exception)
-
+'''
