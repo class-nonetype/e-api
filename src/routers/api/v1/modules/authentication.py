@@ -1,13 +1,19 @@
-import sqlalchemy.orm
+from sqlalchemy.orm import Session
 from starlette.status import (
-    HTTP_200_OK,
-    HTTP_401_UNAUTHORIZED
+    HTTP_200_OK, HTTP_201_CREATED,
+    HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED
 )
 
 from src.config.log import logger
 from src.database.session import database
-from src.database.queries.user import update_last_login_date
-from src.models.schemas.user import UserAccount
+from src.database.queries.user import (
+    select_user_by_username,
+    update_last_login_date,
+    validate_user_authentication,
+    create_user
+)
+
+from src.models.schemas.user import UserAccount, CreateUserAccount
 from src.config.security.jwt import (
     create_access_token, verify_access_token,
     JWTBearer
@@ -17,7 +23,6 @@ from fastapi import APIRouter, Request, Response, Depends
 from fastapi.security import HTTPBearer
 
 
-from src.functions.authentication import validate_user_authentication
 
 
 router = APIRouter()
@@ -31,7 +36,7 @@ authentication_schema = HTTPBearer()
     ),
     summary='',
 )
-async def sign_in(schema: UserAccount, request: Request, session: sqlalchemy.orm.Session = Depends(database)):
+async def sign_in(schema: UserAccount, request: Request, session: Session = Depends(database)):
     logger.info(msg='{0}:{1}'.format(request.client.host, request.client.port))
     
     try:
@@ -58,3 +63,56 @@ async def sign_in(schema: UserAccount, request: Request, session: sqlalchemy.orm
     except Exception as exception:
         logger.exception(msg=exception)
         raise exception
+
+
+
+@router.post(
+    path='/sign-up',
+    status_code=HTTP_201_CREATED,
+    tags=['Autenticación'],
+    description=(
+        ''
+    ),
+    summary='',
+)
+async def sign_up(schema: CreateUserAccount, session: Session = Depends(database)):
+    user = select_user_by_username(session=session, username=schema.UserAccount.username)
+    if user:
+        return Response(status_code=HTTP_400_BAD_REQUEST, content={'message': 'No se pudo crear el usuario. Por favor intentelo de nuevo.'})
+
+    user = create_user(session=session, schema=schema)
+
+    return Response(
+        content={'message': 'El usuario ha sido creado.'},
+        status_code=HTTP_201_CREATED,
+    )
+
+
+
+
+# Validador de sesión.
+@router.post(
+    path='/verify/session',
+    tags=['Autenticación'],
+    description=(
+        ''
+    ),
+    summary='',
+    dependencies=[Depends(JWTBearer())]
+)
+async def validate_session(Authorization: str, request: Request, session: Session = Depends(database)):
+    logger.info(msg='{0}:{1}'.format(request.client.host, request.client.port))
+
+    decoded_token = verify_access_token(token=Authorization, output=True)
+
+    user_id = decoded_token['user_id']
+    user_role_id = decoded_token['role_id']
+
+    # Sesión del usuario
+    user_session = {
+        'client': request.client.host,
+        'user_id': user_id,
+        'access_token': Authorization
+    }
+
+    return user_session
