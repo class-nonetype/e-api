@@ -1,8 +1,12 @@
 import logging
 import time
 import uuid
-from src.config.utils import (LOG_FILE_PATH, LOG_FORMATTER)
-logging.Formatter.converter = time.gmtime
+
+from src.config.path import LOG_FILE_PATH
+
+from logging import Formatter
+
+Formatter.converter = time.gmtime
 
 
 logger = logging.getLogger(__name__)
@@ -13,6 +17,12 @@ logger.setLevel(logging.DEBUG)
 with open(file=LOG_FILE_PATH, mode='w') as log_file:
     pass
 
+
+LOG_FORMATTER = Formatter(
+    fmt='%(asctime)-10s %(levelname)-10s %(filename)-10s -> %(funcName)s::%(lineno)s: %(message)s',
+    datefmt='%d/%m/%Y %I:%M:%S %p',
+    style='%'
+)
 
 LOG_FILE_HANDLER = logging.FileHandler(filename=LOG_FILE_PATH, mode='+a', encoding='utf-8')
 LOG_FILE_HANDLER.setFormatter(fmt=LOG_FORMATTER)

@@ -1,9 +1,7 @@
 import fastapi
 import fastapi.security
 
-from src.config.url import API_PREFIX
-
-# Importa los módulos que definen las rutas de la API de las diferentes funcionalidades.
+from src.config.prefix import API_PREFIX
 from src.routers.api.v1.modules import authentication
 
 # Diccionario que contiene las rutas de la API categorizadas por tipo de módulo.

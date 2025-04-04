@@ -14,7 +14,7 @@ from src.database.queries.user import (
 )
 
 from src.models.schemas.user import UserAccount, CreateUserAccount
-from src.config.security.jwt import (
+from src.config.tokens.jwt import (
     create_access_token, verify_access_token,
     JWTBearer
 )
@@ -30,6 +30,7 @@ authentication_schema = HTTPBearer()
 
 @router.post(
     path='/sign-in',
+    status_code=HTTP_200_OK,
     tags=['Autenticación'],
     description=(
         ''
