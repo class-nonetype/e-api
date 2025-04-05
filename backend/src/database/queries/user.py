@@ -35,10 +35,16 @@ def validate_user_authentication(session: Session, username: str, password: str)
 
 
 def update_last_login_date(session: Session, user_account_id: UUID) -> None:
+    datetime = get_datetime()
+
     session.query(UserAccounts).filter(and_(
         UserAccounts.id==user_account_id, UserAccounts.active == True
-    )).update({'last_login_date': get_datetime()})
-    return session.commit()
+    )).update({'last_login_date': datetime})
+    session.commit()
+
+    return datetime.strftime(format='%d/%m/%y %H:%M:%S %p')
+
+
 
 
 
@@ -52,26 +58,24 @@ def create_user_profile(**kwargs) -> UserProfiles:
 def create_user_account(**kwargs) -> UserAccounts:
     return UserAccounts(
         id=kwargs['id'],
-        role_id=kwargs['role_id'],
-        profile_id=kwargs['profile_id'],
+        user_profile_id=kwargs['user_profile_id'],
         username=kwargs['username'],
         password=kwargs['password']
     )
 
 def create_user(session: Session, schema: CreateUserAccount) -> UserAccounts:
     try:
-        user_profile = create_user_profile(
+        user_profile = UserProfiles(
             id=uuid4(),
-            full_name=schema.Profile.full_name,
-            e_mail=schema.Profile.e_mail
+            full_name=schema.UserProfile.full_name,
+            e_mail=schema.UserProfile.e_mail
         )
         session.add(user_profile)
         session.commit()
 
-        user_account = create_user_account(
+        user_account = UserAccounts(
             id=uuid4(),
-            role_id=schema.Role.id,
-            profile_id=user_profile.id,
+            user_profile_id=user_profile.id,
             username=schema.UserAccount.username,
             password=bcrypt.hashpw(
                 password=schema.UserAccount.password.encode('utf-8'),

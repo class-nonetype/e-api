@@ -25,7 +25,6 @@ class UserAccounts(Base):
     __tablename__ = 'user_accounts'
 
     id                          = Column(UUID(as_uuid=True), primary_key=True, default=uuid4, unique=True, nullable=False)
-    user_role_id                = Column(UUID(as_uuid=True), ForeignKey(UserRoles.id), nullable=False)
     user_profile_id             = Column(UUID(as_uuid=True), ForeignKey(UserProfiles.id), unique=True, nullable=False)
     username                    = Column(String, nullable=False)
     password                    = Column(String, nullable=False)
@@ -33,7 +32,6 @@ class UserAccounts(Base):
     last_login_date             = Column(DateTime, nullable=True)
     active                      = Column(Boolean, default=True, nullable=False)
 
-    user_role_relation          = relationship('UserRoles', backref='user_account', uselist=False)
     user_profile_relation       = relationship('UserProfiles', backref='user_account', uselist=False)
 
     def verify_password(self, password: str) -> bool:

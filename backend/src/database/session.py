@@ -30,6 +30,7 @@ SETTINGS = {
 # Crea un generador de sesiones con la configuración definida.
 session = sqlalchemy.orm.sessionmaker(**SETTINGS)
 
+
 # Generador asíncrono de la sesión SQLAlchemy.
 # Este generador proporciona una sesión de base de datos segura para cada petición.
 async def database():

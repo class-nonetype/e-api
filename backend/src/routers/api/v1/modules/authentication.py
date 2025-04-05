@@ -7,6 +7,7 @@ from starlette.status import (
     HTTP_500_INTERNAL_SERVER_ERROR
 )
 
+from src.config.utils import get_datetime
 from src.config.log import logger
 from src.database.session import database
 from src.database.queries.user import (
@@ -24,7 +25,7 @@ from src.config.tokens.jwt import (
 
 from fastapi import APIRouter, Request, Response, Depends, HTTPException
 from fastapi.security import HTTPBearer
-
+from fastapi.responses import JSONResponse
 
 
 
@@ -50,16 +51,15 @@ async def sign_in(schema: UserAccount, request: Request, session: Session = Depe
             return Response(status_code=HTTP_401_UNAUTHORIZED)
         
         user_credential = {
-            'user_id': user_authentication.id,
+            'user_account_id': user_authentication.id.hex,
             'username': user_authentication.username,
-            'role_id': user_authentication.role_id
         }
         user_access_token = create_access_token(credential=user_credential)
-        update_last_login_date(session=session, account_id=user_authentication.id)
-
+        
         user_session = {
+            'date': update_last_login_date(session=session, user_account_id=user_authentication.id),
             'client': request.client.host,
-            'user_id': user_authentication.id,
+            'user_account_id': user_authentication.id.hex,
             'access_token': user_access_token
         }
         return user_session
@@ -82,14 +82,12 @@ async def sign_in(schema: UserAccount, request: Request, session: Session = Depe
 async def sign_up(schema: CreateUserAccount, session: Session = Depends(database)):
     user = select_user_account_by_username(session=session, username=schema.UserAccount.username)
     if user:
-        return Response(status_code=HTTP_400_BAD_REQUEST, content={'message': 'No se pudo crear el usuario. Por favor intentelo de nuevo.'})
+        return Response(status_code=HTTP_400_BAD_REQUEST)
+    del user
 
     user = create_user(session=session, schema=schema)
 
-    return Response(
-        content={'message': 'El usuario ha sido creado.'},
-        status_code=HTTP_201_CREATED,
-    )
+    return Response(status_code=HTTP_201_CREATED)
 
 
 
@@ -109,13 +107,12 @@ async def validate_session(Authorization: str, request: Request, session: Sessio
 
     decoded_token = verify_access_token(token=Authorization, output=True)
 
-    user_id = decoded_token['user_id']
-    user_role_id = decoded_token['role_id']
+    user_account_id = decoded_token['user_account_id']
 
     # Sesión del usuario
     user_session = {
         'client': request.client.host,
-        'user_id': user_id,
+        'user_account_id': user_account_id,
         'access_token': Authorization
     }
 

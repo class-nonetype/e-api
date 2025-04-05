@@ -31,7 +31,7 @@ authentication_schema = HTTPBearer()
 @router.post(
     path='/comment',
     status_code=HTTP_201_CREATED,
-    tags=['Autenticación'],
+    tags=['Comentario'],
     description=(
         ''
     ),

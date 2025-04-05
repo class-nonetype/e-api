@@ -1,8 +1,5 @@
 from pathlib import Path
 
-
-
-
 def create_directory(*args):
     for directory in args:
         if not directory.exists():

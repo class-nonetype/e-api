@@ -2,19 +2,14 @@ from pydantic import (BaseModel, ConfigDict)
 from uuid import UUID
 from typing import Optional
 
+from src.models.schemas.plan import Plan
+
 class UserSession(BaseModel):
     client: str
     user_full_name: str
     user_id: int
-    user_role_name: str
     access_token: str
     views_control_access: list[str]
-    institutions: Optional[list[str]] = None
-
-class UserRole(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: UUID
 
 
 
@@ -38,7 +33,7 @@ class User(BaseModel):
 
     UserAccount: UserAccount
     UserProfile: UserProfile
-    UserRole: UserRole
+
 
 
 
