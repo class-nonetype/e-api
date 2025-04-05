@@ -102,14 +102,13 @@ async def sign_up(schema: CreateUserAccount, session: Session = Depends(database
     summary='',
     dependencies=[Depends(JWTBearer())]
 )
-async def validate_session(Authorization: str, request: Request, session: Session = Depends(database)):
+async def validate_session(Authorization: str, request: Request):
     logger.info(msg='{0}:{1}'.format(request.client.host, request.client.port))
 
     decoded_token = verify_access_token(token=Authorization, output=True)
 
     user_account_id = decoded_token['user_account_id']
 
-    # Sesión del usuario
     user_session = {
         'client': request.client.host,
         'user_account_id': user_account_id,
