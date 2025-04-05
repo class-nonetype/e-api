@@ -1,13 +1,16 @@
 from sqlalchemy.orm import Session
 from starlette.status import (
-    HTTP_200_OK, HTTP_201_CREATED,
-    HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED
+    HTTP_200_OK,
+    HTTP_201_CREATED,
+    HTTP_400_BAD_REQUEST,
+    HTTP_401_UNAUTHORIZED,
+    HTTP_500_INTERNAL_SERVER_ERROR
 )
 
 from src.config.log import logger
 from src.database.session import database
 from src.database.queries.user import (
-    select_user_by_username,
+    select_user_account_by_username,
     update_last_login_date,
     validate_user_authentication,
     create_user
@@ -19,7 +22,7 @@ from src.config.tokens.jwt import (
     JWTBearer
 )
 
-from fastapi import APIRouter, Request, Response, Depends
+from fastapi import APIRouter, Request, Response, Depends, HTTPException
 from fastapi.security import HTTPBearer
 
 
@@ -63,7 +66,7 @@ async def sign_in(schema: UserAccount, request: Request, session: Session = Depe
 
     except Exception as exception:
         logger.exception(msg=exception)
-        raise exception
+        raise HTTPException(status_code=HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 
@@ -77,7 +80,7 @@ async def sign_in(schema: UserAccount, request: Request, session: Session = Depe
     summary='',
 )
 async def sign_up(schema: CreateUserAccount, session: Session = Depends(database)):
-    user = select_user_by_username(session=session, username=schema.UserAccount.username)
+    user = select_user_account_by_username(session=session, username=schema.UserAccount.username)
     if user:
         return Response(status_code=HTTP_400_BAD_REQUEST, content={'message': 'No se pudo crear el usuario. Por favor intentelo de nuevo.'})
 

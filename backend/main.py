@@ -25,8 +25,7 @@ if not any(
     ]):
     exit()
 
-else:
-    load_dotenv()
+load_dotenv()
 
 
 

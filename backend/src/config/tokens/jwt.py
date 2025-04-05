@@ -58,16 +58,16 @@ class JWTBearer(HTTPBearer):
 
     async def __call__(self, request: Request):
         credential: HTTPAuthorizationCredentials = await super(JWTBearer, self).__call__(request)
-        if credential:
-            if not credential.scheme == 'Bearer':
-                raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail='Esquema de autorización inválida.')
-            
-            if not self.validate_jwt(credential.credentials):
-                raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail='Token inválido o token expirado.')
-            
-            return credential.credentials
-        else:
+        if not credential:
             raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail='Código de autorización inválido.')
+
+        if not credential.scheme == 'Bearer':
+            raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail='Esquema de autorización inválida.')
+        
+        if not self.validate_jwt(credential.credentials):
+            raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail='Token inválido o token expirado.')
+        
+        return credential.credentials
 
     def validate_jwt(self, token: str) -> bool:
         token_validity = False

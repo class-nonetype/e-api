@@ -8,6 +8,8 @@ from src.database.session import session as Session
 from src.database.models.user_roles import UserRoles
 from src.database.models.user_profiles import UserProfiles
 from src.database.models.user_accounts import UserAccounts
+from src.database.models.user_comments import UserComments
+from src.database.models.user_file_uploads import UserFileUploads
 
 from sqlalchemy import inspect
 from sqlalchemy.orm import clear_mappers

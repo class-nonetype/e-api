@@ -13,14 +13,14 @@ from src.models.schemas.user import CreateUserAccount
 
 
 
-def select_user_by_username(session: Session, username: str) -> (UserAccounts | None):
+def select_user_account_by_username(session: Session, username: str) -> (UserAccounts | None):
     return session.query(UserAccounts).filter(and_(
         UserAccounts.username==username, UserAccounts.active == True
     )).first()
 
 
 def validate_user_authentication(session: Session, username: str, password: str) -> (UserAccounts | Literal[False]):
-    user = select_user_by_username(session=session, username=username)
+    user = select_user_account_by_username(session=session, username=username)
 
     if not user:
         return False
