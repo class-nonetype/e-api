@@ -2,18 +2,18 @@ from fastapi.security import (HTTPAuthorizationCredentials, HTTPBearer)
 import datetime
 import jwt
 
-from fastapi import Response, Request, HTTPException
+from fastapi import Request, HTTPException
 
 from src.config.utils import (
-    TIMEZONE, get_datetime, SECRET_KEY
+    get_datetime, SECRET_KEY
 )
 
-from starlette.status import HTTP_401_UNAUTHORIZED
+from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN
 
 
 
 def set_expiration_date(hours: int) -> str:
-    expiration_date = datetime.datetime.now(tz=TIMEZONE) + datetime.timedelta(hours=hours)
+    expiration_date = get_datetime() + datetime.timedelta(hours=hours)
     return expiration_date.strftime('%Y-%m-%d %H:%M:%S.%f%z')
 
 
@@ -31,11 +31,12 @@ def verify_access_token(token: str, output: bool = False):
         current_date = get_datetime()
 
         if (output and expiration_date < current_date):
-            return Response(content={'message': 'Token expirado'}, status_code=HTTP_401_UNAUTHORIZED)
+            raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail='Token expirado.')
 
         return decoded_token
+
     except jwt.exceptions.DecodeError:
-        return Response(content={'message': 'Token inválido'}, status_code=HTTP_401_UNAUTHORIZED)
+        raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail='Token inválido.')
 
 def decode_access_token(token: str) -> dict:
     try:
@@ -47,7 +48,7 @@ def decode_access_token(token: str) -> dict:
             return decoded_token
 
     except jwt.exceptions.DecodeError:
-        return Response(content={'message': 'Token inválido'}, status_code=HTTP_401_UNAUTHORIZED)
+        raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail='Token inválido.')
 
 
 
@@ -59,14 +60,14 @@ class JWTBearer(HTTPBearer):
         credential: HTTPAuthorizationCredentials = await super(JWTBearer, self).__call__(request)
         if credential:
             if not credential.scheme == 'Bearer':
-                raise HTTPException(status_code=403, detail='Esquema de autorización inválida.')
+                raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail='Esquema de autorización inválida.')
             
             if not self.validate_jwt(credential.credentials):
-                raise HTTPException(status_code=403, detail='Token inválido o token expirado.')
+                raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail='Token inválido o token expirado.')
             
             return credential.credentials
         else:
-            raise HTTPException(status_code=403, detail='Código de autorización inválido.')
+            raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail='Código de autorización inválido.')
 
     def validate_jwt(self, token: str) -> bool:
         token_validity = False

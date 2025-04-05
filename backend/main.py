@@ -1,18 +1,28 @@
+from src.config.utils import (
+    TIMEZONE,
+    API_TITLE,
+    API_DESCRIPTION,
+    API_HOST,
+    API_PORT,
+    API_VERSION
+)
 from src.routers.api.router import router
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from uvicorn import run
 from dotenv import load_dotenv
-from os import getenv
-from pytz import timezone
 from pathlib import Path
-from datetime import datetime
+
+import platform
 
 
-
-if not any([file.suffix == '.env' or file.name.endswith('.env')
-            for file in Path(__file__).absolute().parent.parent.iterdir()]):
+if not any(
+    [
+        file.suffix == '.env'
+        or file.name.endswith('.env')
+        for file in Path(__file__).absolute().parent.parent.iterdir()
+    ]):
     exit()
 
 else:
@@ -23,14 +33,12 @@ else:
 
 
 def main(**kwargs) -> None:
-    print(f'{datetime.now(tz=timezone(zone=kwargs['timezone']))=}')
-
     app = FastAPI(
         title=kwargs['api_title'],
         description=kwargs['api_description'],
         version=kwargs['api_version']
     )
-    app.timezone = timezone(zone=kwargs['timezone'])
+    app.timezone = kwargs['timezone']
     app.include_router(router=router)
     app.add_middleware(
         middleware_class=CORSMiddleware,
@@ -40,21 +48,20 @@ def main(**kwargs) -> None:
         allow_headers=['*']
     )
 
-
     return run(
         app=app,
         host=kwargs['api_host'],
-        port=int(kwargs['api_port'])
+        port=kwargs['api_port'],
+        use_colors=True if platform.system() == 'Windows'and platform.release() == '11' else False
     )
-
 
 
 if __name__ == '__main__':
     main(
-        timezone=getenv('TIMEZONE'),
-        api_title=getenv('API_TITLE'),
-        api_description=getenv('API_DESCRIPTION'),
-        api_version=getenv('API_VERSION'),
-        api_host=getenv('API_HOST'),
-        api_port=getenv('API_PORT'),
+        timezone=TIMEZONE,
+        api_title=API_TITLE,
+        api_description=API_DESCRIPTION,
+        api_version=API_VERSION,
+        api_host=API_HOST,
+        api_port=API_PORT
     )

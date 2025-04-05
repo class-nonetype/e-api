@@ -3,7 +3,6 @@ from uuid import uuid4
 from src.config.utils import get_datetime
 from src.database.base import base as Base
 
-import sqlalchemy.orm
 import bcrypt
 
 from src.database.models.user_roles import UserRoles

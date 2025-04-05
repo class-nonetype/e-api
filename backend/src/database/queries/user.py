@@ -14,7 +14,9 @@ from src.models.schemas.user import CreateUserAccount
 
 
 def select_user_by_username(session: Session, username: str) -> (UserAccounts | None):
-    return session.query(UserAccounts).filter(and_(UserAccounts.username==username, UserAccounts.active == True)).first()
+    return session.query(UserAccounts).filter(and_(
+        UserAccounts.username==username, UserAccounts.active == True
+    )).first()
 
 
 def validate_user_authentication(session: Session, username: str, password: str) -> (UserAccounts | Literal[False]):
@@ -33,28 +35,28 @@ def validate_user_authentication(session: Session, username: str, password: str)
 
 
 def update_last_login_date(session: Session, user_account_id: UUID) -> None:
-    session.query(UserAccounts).filter(and_(UserAccounts.id==user_account_id, UserAccounts.active == True)).update({'last_login_date': get_datetime()})
+    session.query(UserAccounts).filter(and_(
+        UserAccounts.id==user_account_id, UserAccounts.active == True
+    )).update({'last_login_date': get_datetime()})
     return session.commit()
 
 
 
 def create_user_profile(**kwargs) -> UserProfiles:
-    user_profile = UserProfiles(
-        id=kwargs.get('id'),
-        full_name=kwargs.get('full_name'),
-        e_mail=kwargs.get('e_mail')
+    return UserProfiles(
+        id=kwargs['id'],
+        full_name=kwargs['full_name'],
+        e_mail=kwargs['e_mail']
     )
-    return user_profile
 
 def create_user_account(**kwargs) -> UserAccounts:
-    user_account = UserAccounts(
-        id=kwargs.get('id'),
-        role_id=kwargs.get('role_id'),
-        profile_id=kwargs.get('profile_id'),
-        username=kwargs.get('username'),
-        password=kwargs.get('password')
+    return UserAccounts(
+        id=kwargs['id'],
+        role_id=kwargs['role_id'],
+        profile_id=kwargs['profile_id'],
+        username=kwargs['username'],
+        password=kwargs['password']
     )
-    return user_account
 
 def create_user(session: Session, schema: CreateUserAccount) -> UserAccounts:
     try:
@@ -65,13 +67,16 @@ def create_user(session: Session, schema: CreateUserAccount) -> UserAccounts:
         )
         session.add(user_profile)
         session.commit()
-        
+
         user_account = create_user_account(
             id=uuid4(),
             role_id=schema.Role.id,
             profile_id=user_profile.id,
             username=schema.UserAccount.username,
-            password=bcrypt.hashpw(password=schema.UserAccount.password.encode('utf-8'),salt=bcrypt.gensalt()).decode('utf-8')
+            password=bcrypt.hashpw(
+                password=schema.UserAccount.password.encode('utf-8'),
+                salt=bcrypt.gensalt()
+            ).decode('utf-8')
         )
         session.add(user_account)
         session.commit()

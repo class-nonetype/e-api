@@ -1,7 +1,6 @@
-import fastapi
-import fastapi.security
+from fastapi import APIRouter
 
-from src.config.prefix import API_PREFIX
+from backend.src.config.api import API_PREFIX
 from src.routers.api.v1.modules import authentication
 
 # Diccionario que contiene las rutas de la API categorizadas por tipo de módulo.
@@ -15,7 +14,7 @@ API_ROUTERS = {
 }
 
 # Crea una instancia del enrutador de FastAPI.
-router = fastapi.APIRouter()
+router = APIRouter()
 
 # Incluye todas las rutas del diccionario API_ROUTERS en el enrutador global.
 # Para cada tipo de módulo, las rutas se agregan con el prefijo correspondiente.
