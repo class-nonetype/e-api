@@ -43,10 +43,8 @@ async def post_user_comment(schema: CreateUserComment, request: Request, session
 
     try:
         user_comment = create_user_comment(session=session, schema=schema)
-        if not user_comment:
-            return Response(status_code=HTTP_400_BAD_REQUEST)
         
-        return Response(status_code=HTTP_201_CREATED)
+        return Response(status_code=HTTP_400_BAD_REQUEST) if not user_comment else Response(status_code=HTTP_201_CREATED)
 
     except Exception as exception:
         logger.exception(msg=exception)
@@ -67,10 +65,8 @@ async def put_user_comment(Comment: ModifyUserComment, user_comment_id: UUID, re
 
     try:
         user_comment = update_user_comment(session=session, schema=Comment, user_comment_id=user_comment_id)
-        if not user_comment:
-            return Response(status_code=HTTP_404_NOT_FOUND)
         
-        return Response(status_code=HTTP_200_OK)
+        return Response(status_code=HTTP_404_NOT_FOUND) if not user_comment else Response(status_code=HTTP_200_OK)
         
     except Exception as exception:
         logger.exception(msg=exception)
@@ -91,10 +87,8 @@ async def delete_user_comment(user_comment_id: UUID, request: Request, session: 
 
     try:
         user_comment = delete_user_comment(session=session, user_comment_id=user_comment_id)
-        if not user_comment:
-            return Response(status_code=HTTP_404_NOT_FOUND)
 
-        return Response(status_code=HTTP_200_OK)
+        return Response(status_code=HTTP_404_NOT_FOUND) if not user_comment else Response(status_code=HTTP_200_OK)
 
     except Exception as exception:
         logger.exception(msg=exception)

@@ -34,7 +34,7 @@ load_dotenv()
 
 
 def main(**kwargs) -> None:
-    def create_app(**kwargs):
+    def create_app(**kwargs) -> FastAPI:
         app = FastAPI(
             title=kwargs['api_title'],
             description=kwargs['api_description'],
@@ -51,14 +51,18 @@ def main(**kwargs) -> None:
         )
         return app
     
-    app = create_app(**kwargs)
+    def run_app(app: FastAPI):
+        return run(
+            app=app,
+            host=kwargs['api_host'],
+            port=kwargs['api_port'],
+            use_colors=True if platform.system() == 'Windows'and platform.release() == '11' else False
+        )
 
-    return run(
-        app=app,
-        host=kwargs['api_host'],
-        port=kwargs['api_port'],
-        use_colors=True if platform.system() == 'Windows'and platform.release() == '11' else False
+    return run_app(
+        create_app(**kwargs)
     )
+
 
 
 if __name__ == '__main__':
